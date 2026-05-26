@@ -9,6 +9,7 @@
   --border: rgba(255,255,255,0.1);
   --text: #e0e0ff;
   --text2: #8888aa;
+  --text-glow: 0 0 12px rgba(0,0,0,0.7), 0 0 24px rgba(0,0,0,0.4);
   --accent: #6c5ce7;
   --accent2: #a29bfe;
   --success: #00b894;
@@ -60,11 +61,16 @@ body {
 ::-webkit-scrollbar-thumb:hover { background: var(--text2); }
 
 .app-layout {
-  height: 100vh;
   display: flex;
   flex-direction: column;
+  height: 100vh;
+  background: var(--bg);
+  color: var(--text);
   position: relative;
+  overflow: hidden;
 }
+
+
 
 .app-header {
   display: flex;
@@ -152,6 +158,25 @@ body {
   transform: rotate(30deg);
 }
 
+.install-btn {
+  background: var(--accent);
+  border: none;
+  color: #fff;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+}
+
+.install-btn:hover {
+  opacity: 0.85;
+  transform: scale(1.05);
+}
+
 .three-scene {
   position: fixed;
   top: 0;
@@ -165,6 +190,54 @@ body {
 .three-scene canvas {
   opacity: 0.4;
   pointer-events: none !important;
+}
+
+.three-scene-ocean {
+  background-image: url('https://images.unsplash.com/photo-1505118380757-91f5f5632de0?w=1920&q=80');
+  background-size: cover;
+  background-position: center;
+}
+
+.three-scene-space {
+  overflow: hidden;
+}
+
+.three-scene-space::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  z-index: 1;
+}
+
+.space-video-bg {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  min-width: 100%;
+  min-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: cover;
+  pointer-events: none;
+}
+
+.three-scene-forest {
+  overflow: hidden;
+}
+
+.forest-video-bg {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  min-width: 100%;
+  min-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: cover;
+  pointer-events: none;
 }
 
 .app-main {
@@ -438,6 +511,8 @@ body {
   display: flex;
   gap: 8px;
   margin-bottom: 20px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  border-radius: var(--radius-sm);
 }
 
 .task-input {
@@ -625,6 +700,7 @@ body {
   border-radius: 50px;
   font-size: 13px;
   font-weight: 600;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
 .streak-fire { font-size: 16px; }

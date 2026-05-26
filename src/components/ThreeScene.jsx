@@ -128,273 +128,6 @@ function LightDecor() {
   );
 }
 
-// ─── CHERRY BLOSSOM — indoor minimalist luxury interior
-
-function IndoorPetal({ index }) {
-  const ref = useRef();
-  useFrame((s) => {
-    if (ref.current) {
-      const t = s.clock.elapsedTime * 0.2 + index * 0.6;
-      ref.current.position.x += Math.sin(t * 0.3 + index) * 0.0012;
-      ref.current.position.y -= 0.0018;
-      ref.current.position.z += Math.cos(t * 0.2 + index * 0.5) * 0.001;
-      ref.current.rotation.x += 0.004;
-      ref.current.rotation.z += 0.006;
-      if (ref.current.position.y < -0.3) {
-        ref.current.position.y = 1.8;
-        ref.current.position.x = (index % 8 - 4) * 0.3 + (Math.random() - 0.5) * 0.15;
-        ref.current.position.z = (Math.random() - 0.5) * 1.8;
-      }
-    }
-  });
-  return (
-    <mesh
-      ref={ref}
-      position={[(index % 8 - 4) * 0.3, Math.random() * 2 + 0.3, (Math.random() - 0.5) * 1.8]}
-      rotation={[Math.random() * 6, Math.random() * 6, Math.random() * 6]}
-    >
-      <planeGeometry args={[0.035, 0.022]} />
-      <meshBasicMaterial color={['#f8bbd0', '#fce4ec', '#f48fb1', '#ffcdd2', '#f0d0d8', '#e8c0c8'][index % 6]} transparent opacity={0.7} />
-    </mesh>
-  );
-}
-
-function TwistedTrunk({ offset, rotY, scaleY }) {
-  const segments = 4;
-  const heights = [0.15, 0.4, 0.7, 0.95];
-  const offsets = [[0, 0], [0.03, 0.04], [-0.02, 0.06], [0.04, 0.03]];
-  return (
-    <group position={offset} rotation={[0, rotY, 0]}>
-      {Array.from({ length: segments }, (_, i) => (
-        <mesh
-          key={i}
-          position={[offsets[i][0], heights[i] * scaleY, offsets[i][1]]}
-          rotation={[Math.sin(i * 0.5) * 0.06, 0, Math.cos(i * 0.7) * 0.05]}
-        >
-          <cylinderGeometry args={[0.035 - i * 0.006, 0.05 - i * 0.004, 0.3 * scaleY, 6]} />
-          <meshStandardMaterial color="#8d6e63" roughness={0.8} />
-        </mesh>
-      ))}
-    </group>
-  );
-}
-
-function CanopyCluster({ cx, cy, cz, scale: sc }) {
-  const colors = ['#fce4ec', '#f8bbd0', '#f48fb1', '#ffcdd2', '#f0d0d8'];
-  const positions = [];
-  for (let i = 0; i < 18; i++) {
-    const angle = Math.random() * Math.PI * 2;
-    const radius = 0.2 + Math.random() * 0.25;
-    positions.push({
-      x: Math.cos(angle) * radius * sc,
-      y: (Math.random() - 0.5) * 0.25 * sc,
-      z: Math.sin(angle) * radius * sc,
-      r: (0.08 + Math.random() * 0.12) * sc,
-      color: colors[Math.floor(Math.random() * colors.length)],
-    });
-  }
-  return (
-    <group position={[cx, cy, cz]}>
-      {positions.map((p, i) => (
-        <mesh key={i} position={[p.x, p.y, p.z]}>
-          <sphereGeometry args={[p.r, 7, 7]} />
-          <meshStandardMaterial color={p.color} roughness={0.5} metalness={0.05} />
-        </mesh>
-      ))}
-    </group>
-  );
-}
-
-function CherryBlossomTree() {
-  const treeRef = useRef();
-  useFrame((s) => {
-    if (treeRef.current) treeRef.current.rotation.z = Math.sin(s.clock.elapsedTime * 0.12) * 0.005;
-  });
-  const canopyPositions = useMemo(() => {
-    const pos = [];
-    for (let i = 0; i < 60; i++) {
-      const angle = Math.random() * Math.PI * 2;
-      const radius = 0.2 + Math.random() * 0.55;
-      pos.push({
-        cx: Math.cos(angle) * radius,
-        cy: 0.8 + Math.random() * 0.5,
-        cz: Math.sin(angle) * radius * 0.7,
-        scale: 0.6 + Math.random() * 0.5,
-      });
-    }
-    return pos;
-  }, []);
-
-  return (
-    <group ref={treeRef} position={[0, -0.2, 0]}>
-      {/* Multiple twisting trunks */}
-      <TwistedTrunk offset={[-0.04, 0, 0.03]} rotY={0} scaleY={1} />
-      <TwistedTrunk offset={[0.05, 0, -0.02]} rotY={0.3} scaleY={0.9} />
-      <TwistedTrunk offset={[-0.02, 0, -0.05]} rotY={-0.2} scaleY={0.85} />
-      <TwistedTrunk offset={[0, 0, 0.04]} rotY={0.5} scaleY={0.7} />
-      {/* Broad bushy canopy */}
-      {canopyPositions.map((p, i) => (
-        <CanopyCluster key={i} cx={p.cx} cy={p.cy} cz={p.cz} scale={p.scale} />
-      ))}
-    </group>
-  );
-}
-
-function Planter() {
-  return (
-    <group position={[0, -0.5, 0]}>
-      {/* Outer planter */}
-      <mesh position={[0, 0.15, 0]}>
-        <boxGeometry args={[0.9, 0.3, 0.9]} />
-        <meshStandardMaterial color="#faf8f5" roughness={0.2} metalness={0.05} />
-      </mesh>
-      {/* Inner rim */}
-      <mesh position={[0, 0.3, 0]}>
-        <boxGeometry args={[0.85, 0.02, 0.85]} />
-        <meshStandardMaterial color="#f0ece8" roughness={0.2} metalness={0.05} />
-      </mesh>
-      {/* White pebbles */}
-      {Array.from({ length: 40 }, (_, i) => (
-        <mesh
-          key={i}
-          position={[
-            (Math.random() - 0.5) * 0.7,
-            0.08 + Math.random() * 0.04,
-            (Math.random() - 0.5) * 0.7,
-          ]}
-          rotation={[Math.random(), Math.random(), Math.random()]}
-        >
-          <sphereGeometry args={[0.02 + Math.random() * 0.03, 5, 5]} />
-          <meshStandardMaterial color="#ffffff" roughness={0.4} metalness={0.1} />
-        </mesh>
-      ))}
-    </group>
-  );
-}
-
-function ModernChair() {
-  return (
-    <group position={[1.6, -0.5, 0.4]} rotation={[0, -0.2, 0]}>
-      {/* Seat */}
-      <mesh position={[0, 0.2, 0]}>
-        <boxGeometry args={[0.4, 0.05, 0.4]} />
-        <meshStandardMaterial color="#f0ece8" roughness={0.3} metalness={0.05} />
-      </mesh>
-      {/* Seat cushion */}
-      <mesh position={[0, 0.25, 0]}>
-        <boxGeometry args={[0.35, 0.04, 0.35]} />
-        <meshStandardMaterial color="#f8f4f0" roughness={0.5} />
-      </mesh>
-      {/* Back */}
-      <mesh position={[0, 0.5, -0.18]}>
-        <boxGeometry args={[0.35, 0.45, 0.03]} />
-        <meshStandardMaterial color="#f0ece8" roughness={0.3} metalness={0.05} />
-      </mesh>
-      {/* Legs */}
-      {[[-0.16, 0, -0.16], [0.16, 0, -0.16], [-0.16, 0, 0.16], [0.16, 0, 0.16]].map((p, i) => (
-        <mesh key={i} position={[p[0], -0.08, p[2]]}>
-          <cylinderGeometry args={[0.015, 0.02, 0.12, 6]} />
-          <meshStandardMaterial color="#e0dcd8" metalness={0.2} roughness={0.3} />
-        </mesh>
-      ))}
-    </group>
-  );
-}
-
-function SideTable() {
-  return (
-    <group position={[1.8, -0.5, -0.8]} rotation={[0, 0.3, 0]}>
-      {/* Top */}
-      <mesh position={[0, 0.15, 0]}>
-        <cylinderGeometry args={[0.15, 0.16, 0.03, 16]} />
-        <meshStandardMaterial color="#ece8e4" roughness={0.2} metalness={0.05} />
-      </mesh>
-      {/* Leg */}
-      <mesh position={[0, -0.05, 0]}>
-        <cylinderGeometry args={[0.015, 0.02, 0.2, 6]} />
-        <meshStandardMaterial color="#e0dcd8" metalness={0.2} roughness={0.3} />
-      </mesh>
-      {/* Base */}
-      <mesh position={[0, -0.15, 0]}>
-        <cylinderGeometry args={[0.08, 0.1, 0.02, 12]} />
-        <meshStandardMaterial color="#e0dcd8" metalness={0.2} roughness={0.3} />
-      </mesh>
-      {/* Vase on table */}
-      <mesh position={[0, 0.3, 0]}>
-        <cylinderGeometry args={[0.02, 0.04, 0.1, 8]} />
-        <meshStandardMaterial color="#d8d0c8" roughness={0.4} metalness={0.1} />
-      </mesh>
-    </group>
-  );
-}
-
-function CherryBlossomEnvironment() {
-  return (
-    <group>
-      {/* Back wall - light warm gray */}
-      <mesh position={[0, 0.8, -2]}>
-        <planeGeometry args={[8, 3]} />
-        <meshStandardMaterial color="#f0ece8" roughness={0.6} />
-      </mesh>
-      <mesh position={[0, 1.8, -2]}>
-        <planeGeometry args={[8, 1.2]} />
-        <meshStandardMaterial color="#e8e4e0" roughness={0.7} />
-      </mesh>
-      {/* Floor - light warm beige */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.5, 0.5]}>
-        <planeGeometry args={[8, 4]} />
-        <meshStandardMaterial color="#f5f2ed" roughness={0.5} />
-      </mesh>
-      {/* Floor subtle grain */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.49, 0.5]}>
-        <planeGeometry args={[8, 4]} />
-        <meshStandardMaterial color="#eeeae5" transparent opacity={0.15} wireframe roughness={0.5} />
-      </mesh>
-      {/* Planter */}
-      <Planter />
-      {/* Tree */}
-      <CherryBlossomTree />
-      {/* Modern chair */}
-      <ModernChair />
-      {/* Side table */}
-      <SideTable />
-      {/* Floating petals — 40 continuous */}
-      {Array.from({ length: 40 }, (_, i) => <IndoorPetal key={i} index={i} />)}
-      {/* Warm window light */}
-      <mesh position={[1.5, 1.2, -1.5]} rotation={[0.1, 0.4, 0]}>
-        <planeGeometry args={[0.6, 1.5]} />
-        <meshBasicMaterial color="#fffdf5" transparent opacity={0.07} />
-      </mesh>
-      <mesh position={[-0.3, 1.5, -1.8]}>
-        <sphereGeometry args={[2, 16, 16]} />
-        <meshBasicMaterial color="#fce4ec" transparent opacity={0.04} />
-      </mesh>
-      {/* Very light ambient glow */}
-      <mesh position={[0, 0.8, -1.9]}>
-        <planeGeometry args={[5, 3]} />
-        <meshBasicMaterial color="#faf6f0" transparent opacity={0.04} />
-      </mesh>
-    </group>
-  );
-}
-
-function CherryBlossomDecor() {
-  return (
-    <>
-      <Sparkles count={25} scale={[5, 3, 4]} size={0.018} speed={0.15} color="#fce4ec" />
-      {/* Ambient light particles */}
-      {Array.from({ length: 8 }, (_, i) => (
-        <Float key={i} speed={0.3 + Math.random() * 0.2} rotationIntensity={0} floatIntensity={0.15}>
-          <mesh position={[(Math.random() - 0.5) * 3, Math.random() * 1.5 + 0.2, (Math.random() - 0.5) * 2 - 0.5]}>
-            <sphereGeometry args={[0.006, 4, 4]} />
-            <meshBasicMaterial color="#f0d0d8" transparent opacity={0.2} />
-          </mesh>
-        </Float>
-      ))}
-    </>
-  );
-}
-
 // ─── OCEAN THEME ──────────────────────────────────────────────────
 
 function OceanEnvironment() {
@@ -754,7 +487,6 @@ function MinimalDecor() {
 const ENVIRONMENTS = {
   dark:     { scene: DarkEnvironment,     decor: DarkDecor,     bg: '#050510', light: '#6c5ce7' },
   light:    { scene: LightEnvironment,    decor: LightDecor,    bg: '#e8e0d8', light: '#ffe082' },
-  forest:   { scene: CherryBlossomEnvironment, decor: CherryBlossomDecor, bg: '#f5f2ed', light: '#f5e0e0' },
   ocean:    { scene: OceanEnvironment,    decor: OceanDecor,    bg: '#0a1628', light: '#4fc3f7' },
   space:    { scene: SpaceEnvironment,    decor: SpaceDecor,    bg: '#050510', light: '#b39ddb' },
   cyberpunk:{ scene: CyberpunkEnvironment,decor: CyberpunkDecor,bg: '#0a000a', light: '#ff0066' },
@@ -786,6 +518,21 @@ function SceneContent() {
 
 export default function ThreeScene() {
   const { currentTheme } = useGame();
+  if (currentTheme === 'ocean') return <div className="three-scene three-scene-ocean" />;
+  if (currentTheme === 'space') return (
+    <div className="three-scene three-scene-space">
+      <video className="space-video-bg" autoPlay loop muted playsInline>
+        <source src="https://cdn.pixabay.com/vimeo/715605698/nebula-85423.mp4?width=1280&amp;quality=80" type="video/mp4" />
+      </video>
+    </div>
+  );
+  if (currentTheme === 'forest') return (
+    <div className="three-scene three-scene-forest">
+      <video className="forest-video-bg" autoPlay loop muted playsInline>
+        <source src="/forest-bg.mp4" type="video/mp4" />
+      </video>
+    </div>
+  );
   return (
     <div className="three-scene">
       <Canvas camera={{ position: [0, 0, 3.6], fov: 50 }} dpr={[1, 1.5]} gl={{ alpha: currentTheme === 'anime' }}>

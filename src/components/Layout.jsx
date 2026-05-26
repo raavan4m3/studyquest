@@ -15,6 +15,7 @@ import RewardPopup from './RewardPopup';
 import LevelUpPopup from './LevelUpPopup';
 import AchievementPopup from './AchievementPopup';
 import ThreeScene from './ThreeScene';
+import InstallButton from './InstallButton';
 
 export default function Layout() {
   const {
@@ -119,6 +120,7 @@ export default function Layout() {
         </div>
         <div className="header-right">
           <DailyStreak />
+          <InstallButton />
           <button className="settings-btn" onClick={() => setSettingsOpen(true)}>
             <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2">
               <circle cx="12" cy="12" r="3" />
