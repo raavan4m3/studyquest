@@ -177,6 +177,88 @@ body {
   transform: scale(1.05);
 }
 
+.hamburger-btn {
+  display: none;
+  background: var(--card);
+  border: 1px solid var(--border);
+  color: var(--text2);
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 4px;
+  transition: var(--transition);
+}
+
+.hamburger-line {
+  display: block;
+  width: 18px;
+  height: 2px;
+  background: var(--text2);
+  border-radius: 1px;
+  transition: var(--transition);
+}
+
+.hamburger-line.open:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+.hamburger-line.open:nth-child(2) { opacity: 0; }
+.hamburger-line.open:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+
+.mobile-nav-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 99;
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.mobile-nav-overlay.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.mobile-nav {
+  position: absolute;
+  top: 64px;
+  right: 0;
+  width: 260px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 0 0 0 var(--radius);
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.mobile-nav-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background: none;
+  border: none;
+  color: var(--text2);
+  font-size: 15px;
+  font-weight: 500;
+  font-family: inherit;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: var(--transition);
+  width: 100%;
+  text-align: left;
+}
+
+.mobile-nav-btn:hover { background: var(--card); color: var(--text); }
+.mobile-nav-btn.active { background: var(--accent); color: white; }
+
 .three-scene {
   position: fixed;
   top: 0;
@@ -268,9 +350,11 @@ body {
 .right-panel {
   flex: 1;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: 24px;
+  overflow-y: auto;
 }
 
 .tab-page {
@@ -1298,6 +1382,39 @@ body {
   animation: fadeIn 0.3s ease;
 }
 
+/* Rival thought widget (home screen) */
+.rival-thought {
+  margin-top: 16px;
+  padding: 14px 16px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.rival-thought-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.rival-thought-icon { font-size: 18px; }
+
+.rival-thought-label {
+  font-size: 12px;
+  color: var(--text2);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.rival-thought-message {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+  font-style: italic;
+  line-height: 1.5;
+}
+
 /* Statistics Dashboard */
 .stats-dashboard { max-width: 900px; margin: 0 auto; }
 
@@ -1799,8 +1916,14 @@ body {
 }
 
 @media (max-width: 768px) {
-  .app-header { padding: 10px 16px; }
+  .app-header { padding: 10px 16px; gap: 8px; }
   .header-nav { display: none; }
+  .hamburger-btn { display: flex; }
+  .mobile-nav-overlay { display: block; }
+  .header-left { gap: 10px; }
+  .app-logo { font-size: 15px; }
+  .header-right { gap: 8px; }
+  .streak-badge { padding: 4px 10px; font-size: 12px; }
   .digit { font-size: 42px; }
   .digit-sep { font-size: 36px; }
   .settings-panel { width: 95vw; margin: 0 10px; }
@@ -1809,8 +1932,29 @@ body {
   .timer-inputs { flex-direction: column; }
   .xp-bar-container { min-width: 120px; }
   .tab-page { padding: 16px; }
+  .left-panel { padding: 16px; }
+  .right-panel { padding: 16px; }
+  .revision-grid { grid-template-columns: 1fr; }
+  .floating-timer { bottom: 16px; right: 16px; padding: 10px 14px; font-size: 13px; }
 }
 
 @media (max-width: 480px) {
+  .app-header { padding: 8px 12px; }
+  .app-logo { font-size: 13px; }
+  .header-left { gap: 6px; }
+  .header-right { gap: 4px; }
+  .streak-badge { padding: 3px 8px; font-size: 11px; gap: 4px; }
+  .settings-btn { width: 34px; height: 34px; }
+  .install-btn { width: 34px; height: 34px; }
+  .hamburger-btn { width: 34px; height: 34px; }
   .digit { font-size: 32px; }
+  .digit-sep { font-size: 28px; }
+  .left-panel { padding: 12px; }
+  .right-panel { padding: 12px; }
+  .tab-page { padding: 12px; }
+  .page-title { font-size: 20px; }
+  .section-title { font-size: 16px; }
+  .stats-grid { grid-template-columns: 1fr; }
+  .revision-group { padding: 12px; }
+  .mobile-nav { width: 100vw; border-radius: 0; top: 56px; }
 }

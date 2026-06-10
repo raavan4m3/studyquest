@@ -1,4 +1,4 @@
-import { createContext, useContext, useReducer, useCallback, useEffect } from 'react';
+import { createContext, useContext, useReducer, useCallback, useEffect, useRef, useState } from 'react';
 
 const GameContext = createContext();
 
@@ -35,12 +35,27 @@ function getLevelProgress(xp) {
   };
 }
 
+function todayStr() { return new Date().toISOString().slice(0, 10); }
+
+function updateDailyStats(state, updates) {
+  const today = todayStr();
+  const history = state.statsHistory || [];
+  const existing = history.findIndex(d => d.date === today);
+  if (existing >= 0) {
+    const updated = [...history];
+    updated[existing] = { ...updated[existing], studySeconds: updated[existing].studySeconds + (updates.studySeconds || 0), xpEarned: updated[existing].xpEarned + (updates.xpEarned || 0), tasksDone: updated[existing].tasksDone + (updates.tasksDone || 0) };
+    return updated;
+  }
+  return [...history, { date: today, studySeconds: updates.studySeconds || 0, xpEarned: updates.xpEarned || 0, tasksDone: updates.tasksDone || 0 }];
+}
+
 const initialState = {
   xp: 0,
   coins: 0,
   streak: 0,
   lastStudyDate: null,
   totalStudySeconds: 0,
+  todayStudySeconds: 0,
   tasksCompleted: 0,
   sessionsCompleted: 0,
   achievements: [],
@@ -80,7 +95,7 @@ function gameReducer(state, action) {
       const newXp = state.xp + action.payload;
       const oldLevel = getLevel(state.xp);
       const newLevel = getLevel(newXp);
-      newState = { ...state, xp: newXp, showReward: { xp: action.payload, coins: 0 } };
+      newState = { ...state, xp: newXp, showReward: { xp: action.payload, coins: 0 }, statsHistory: updateDailyStats(state, { xpEarned: action.payload }) };
       if (newLevel > oldLevel) {
         newState.showLevelUp = { level: newLevel, coins: newLevel * 50 };
         newState.coins += newLevel * 50;
@@ -96,6 +111,7 @@ function gameReducer(state, action) {
         xp: state.xp + (action.payload.xp || 0),
         coins: state.coins + (action.payload.coins || 0),
         showReward: { xp: action.payload.xp || 0, coins: action.payload.coins || 0 },
+        statsHistory: updateDailyStats(state, { xpEarned: action.payload.xp || 0 }),
       };
       {
         const oldLevel = getLevel(state.xp - (action.payload.xp || 0));
@@ -134,6 +150,8 @@ function gameReducer(state, action) {
         ...state,
         sessionsCompleted: state.sessionsCompleted + 1,
         totalStudySeconds: state.totalStudySeconds + action.payload,
+        todayStudySeconds: state.todayStudySeconds + action.payload,
+        statsHistory: updateDailyStats(state, { studySeconds: action.payload }),
       };
       break;
     case 'COMPLETE_TASK':
@@ -141,6 +159,7 @@ function gameReducer(state, action) {
         ...state,
         tasksCompleted: state.tasksCompleted + 1,
         tasks: state.tasks.filter(t => t.id !== action.payload),
+        statsHistory: updateDailyStats(state, { tasksDone: 1 }),
       };
       break;
     case 'ADD_TASK':
@@ -162,11 +181,13 @@ function gameReducer(state, action) {
       const today = new Date().toDateString();
       const last = state.lastStudyDate;
       let newStreak = state.streak;
+      let todaySecs = state.todayStudySeconds;
       if (last !== today) {
         const yesterday = new Date(Date.now() - 86400000).toDateString();
         newStreak = last === yesterday ? state.streak + 1 : 1;
+        todaySecs = 0;
       }
-      newState = { ...state, streak: newStreak, lastStudyDate: today };
+      newState = { ...state, streak: newStreak, lastStudyDate: today, todayStudySeconds: todaySecs };
       break;
     }
     case 'SET_THEME':
@@ -226,14 +247,60 @@ function gameReducer(state, action) {
     case 'CLEAR_COMPLETED_REVISIONS':
       newState = { ...state, revisions: (state.revisions || []).filter(r => !r.completed) };
       break;
+    case 'SET_STATE':
+      newState = { ...state, ...action.payload };
+      break;
     default:
       newState = state;
   }
   return newState;
 }
 
+const API = import.meta.env.PROD ? 'https://studyquest-api.onrender.com' : '';
+
+function getUserId() {
+  let id = localStorage.getItem('studyquest_userId');
+  if (!id) {
+    id = crypto.randomUUID ? crypto.randomUUID() : 'user_' + Date.now() + '_' + Math.random().toString(36).slice(2);
+    localStorage.setItem('studyquest_userId', id);
+  }
+  return id;
+}
+
+async function fetchFromServer(userId) {
+  try {
+    const res = await fetch(`${API}/api/load/${userId}`);
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data.state;
+  } catch { return null; }
+}
+
+async function saveToServer(userId, state) {
+  try {
+    await fetch(`${API}/api/save/${userId}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ state: { ...state, showReward: null, showLevelUp: null, showAchievement: null } }),
+    });
+  } catch { /* offline */ }
+}
+
 export function GameProvider({ children }) {
   const [state, dispatch] = useReducer(gameReducer, null, loadState);
+  const [loaded, setLoaded] = useState(false);
+  const userId = useRef(getUserId());
+  const saveTimer = useRef(null);
+
+  useEffect(() => {
+    fetchFromServer(userId.current).then(serverState => {
+      if (serverState) {
+        const merged = { ...state, ...serverState, showReward: null, showLevelUp: null, showAchievement: null };
+        dispatch({ type: 'SET_STATE', payload: merged });
+      }
+      setLoaded(true);
+    });
+  }, []);
 
   const addXP = useCallback((amount) => dispatch({ type: 'ADD_XP', payload: amount }), []);
   const addCoins = useCallback((amount) => dispatch({ type: 'ADD_COINS', payload: amount }), []);
@@ -266,7 +333,12 @@ export function GameProvider({ children }) {
 
   useEffect(() => {
     saveState(state);
-  }, [state]);
+    if (!loaded) return;
+    if (saveTimer.current) clearTimeout(saveTimer.current);
+    saveTimer.current = setTimeout(() => {
+      saveToServer(userId.current, state);
+    }, 2000);
+  }, [state, loaded]);
 
   const value = {
     ...state,
@@ -299,7 +371,7 @@ export function GameProvider({ children }) {
     dispatch,
   };
 
-  return <GameContext.Provider value={value}>{children}</GameContext.Provider>;
+  return <GameContext.Provider value={value}>{loaded ? children : null}</GameContext.Provider>;
 }
 
 export function useGame() {

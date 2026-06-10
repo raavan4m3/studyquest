@@ -23,7 +23,16 @@ export default function Layout() {
     clearReward, clearLevelUp, clearAchievement, revisions,
   } = useGame();
   const [settingsOpen, setSettingsOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState(() => localStorage.getItem('studyquest_tab') || 'main');
+  const [activeTab, setActiveTab] = useState(() => {
+    const saved = localStorage.getItem('studyquest_tab');
+    return saved === 'rival' ? 'main' : saved || 'main';
+  });
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
+
+  const handleTab = (tab) => {
+    setActiveTab(tab);
+    setMobileNavOpen(false);
+  };
 
   useEffect(() => { localStorage.setItem('studyquest_tab', activeTab); }, [activeTab]);
   const [confettiTrigger, setConfettiTrigger] = useState(0);
@@ -61,6 +70,7 @@ export default function Layout() {
         </div>
         <div className="right-panel">
           <TaskManager />
+          <AIRival compact />
         </div>
       </div>
       {activeTab === 'leaderboard' && (
@@ -73,12 +83,6 @@ export default function Layout() {
         <div className="tab-page">
           <h2 className="page-title">Statistics</h2>
           <StatisticsDashboard />
-        </div>
-      )}
-      {activeTab === 'rival' && (
-        <div className="tab-page">
-          <h2 className="page-title">AI Rival</h2>
-          <AIRival />
         </div>
       )}
       {activeTab === 'revision' && (
@@ -111,12 +115,16 @@ export default function Layout() {
         </div>
         <div className="header-center">
           <nav className="header-nav">
-            <button className={`nav-btn ${activeTab === 'main' ? 'active' : ''}`} onClick={() => setActiveTab('main')}>Home</button>
-            <button className={`nav-btn ${activeTab === 'leaderboard' ? 'active' : ''}`} onClick={() => setActiveTab('leaderboard')}>Leaderboard</button>
-            <button className={`nav-btn ${activeTab === 'stats' ? 'active' : ''}`} onClick={() => setActiveTab('stats')}>Stats</button>
-            <button className={`nav-btn ${activeTab === 'rival' ? 'active' : ''}`} onClick={() => setActiveTab('rival')}>Rival</button>
-            <button className={`nav-btn ${activeTab === 'revision' ? 'active' : ''}`} onClick={() => setActiveTab('revision')}>Revision</button>
+            <button className={`nav-btn ${activeTab === 'main' ? 'active' : ''}`} onClick={() => handleTab('main')}>Home</button>
+            <button className={`nav-btn ${activeTab === 'leaderboard' ? 'active' : ''}`} onClick={() => handleTab('leaderboard')}>Leaderboard</button>
+            <button className={`nav-btn ${activeTab === 'stats' ? 'active' : ''}`} onClick={() => handleTab('stats')}>Stats</button>
+            <button className={`nav-btn ${activeTab === 'revision' ? 'active' : ''}`} onClick={() => handleTab('revision')}>Revision</button>
           </nav>
+          <button className="hamburger-btn" onClick={() => setMobileNavOpen(!mobileNavOpen)} aria-label="Menu">
+            <span className={`hamburger-line ${mobileNavOpen ? 'open' : ''}`} />
+            <span className={`hamburger-line ${mobileNavOpen ? 'open' : ''}`} />
+            <span className={`hamburger-line ${mobileNavOpen ? 'open' : ''}`} />
+          </button>
         </div>
         <div className="header-right">
           <DailyStreak />
@@ -129,6 +137,27 @@ export default function Layout() {
           </button>
         </div>
       </header>
+
+      <div className={`mobile-nav-overlay ${mobileNavOpen ? 'open' : ''}`} onClick={() => setMobileNavOpen(false)}>
+        <nav className="mobile-nav" onClick={e => e.stopPropagation()}>
+          <button className={`mobile-nav-btn ${activeTab === 'main' ? 'active' : ''}`} onClick={() => handleTab('main')}>
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            Home
+          </button>
+          <button className={`mobile-nav-btn ${activeTab === 'leaderboard' ? 'active' : ''}`} onClick={() => handleTab('leaderboard')}>
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5C5 4 6 2 8 2c2 0 3 2 4 4"/><path d="M12 6v4"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5C19 4 18 2 16 2c-2 0-3 2-4 4"/><path d="M8 2h8"/><circle cx="12" cy="12" r="3"/><path d="M12 15v4"/><path d="M8 22h8"/></svg>
+            Leaderboard
+          </button>
+          <button className={`mobile-nav-btn ${activeTab === 'stats' ? 'active' : ''}`} onClick={() => handleTab('stats')}>
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+            Stats
+          </button>
+          <button className={`mobile-nav-btn ${activeTab === 'revision' ? 'active' : ''}`} onClick={() => handleTab('revision')}>
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+            Revision
+          </button>
+        </nav>
+      </div>
 
       <main className="app-main">
         {renderContent()}

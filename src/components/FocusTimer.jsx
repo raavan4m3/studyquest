@@ -3,6 +3,10 @@ import { createPortal } from 'react-dom';
 import { useGame } from '../store/GameContext';
 import { checkAchievements } from '../utils/achievements';
 
+function isMobile() {
+  return window.innerWidth < 768;
+}
+
 export default function FocusTimer() {
   const { timerHours, timerMinutes, timerSeconds, addReward, updateStreak, completeSession, dispatch, ...state } = useGame();
   const [timeLeft, setTimeLeft] = useState(null);
@@ -11,6 +15,8 @@ export default function FocusTimer() {
   const [pipActive, setPipActive] = useState(false);
   const intervalRef = useRef(null);
   const pipRef = useRef(null);
+  const endTimeRef = useRef(null);
+  const completeTimeoutRef = useRef(null);
 
   const totalSeconds = timerHours * 3600 + timerMinutes * 60 + timerSeconds;
 
@@ -25,39 +31,47 @@ export default function FocusTimer() {
   }, [timeLeft, pipActive]);
 
   useEffect(() => {
-    if (!isRunning) setTimeLeft(totalSeconds);
+    if (!isRunning) {
+      setTimeLeft(totalSeconds);
+      endTimeRef.current = null;
+    }
   }, [timerHours, timerMinutes, timerSeconds]);
 
   useEffect(() => {
-    if (isRunning && timeLeft > 0) {
+    if (isRunning && totalSeconds > 0) {
+      endTimeRef.current = Date.now() + timeLeft * 1000;
       intervalRef.current = setInterval(() => {
-        setTimeLeft(prev => {
-          if (prev <= 1) {
-            clearInterval(intervalRef.current);
-            setIsRunning(false);
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
+        const remaining = Math.max(0, Math.ceil((endTimeRef.current - Date.now()) / 1000));
+        setTimeLeft(remaining);
+        if (remaining <= 0) {
+          clearInterval(intervalRef.current);
+          setIsRunning(false);
+        }
+      }, 200);
     }
     return () => clearInterval(intervalRef.current);
   }, [isRunning]);
 
   const handleComplete = useCallback(() => {
-    const sessionSeconds = totalSeconds - timeLeft;
     addReward(50, 25);
-    completeSession(sessionSeconds);
+    completeSession(totalSeconds);
     updateStreak();
-    setShowComplete(true);
-    setTimeout(() => setShowComplete(false), 3000);
+    if (!isMobile()) {
+      setShowComplete(true);
+      completeTimeoutRef.current = setTimeout(() => {
+        setShowComplete(false);
+        setTimeLeft(totalSeconds);
+      }, 3000);
+    } else {
+      setTimeLeft(totalSeconds);
+    }
     const newState = {
       ...state,
       sessionsCompleted: state.sessionsCompleted + 1,
-      totalStudySeconds: state.totalStudySeconds + sessionSeconds,
+      totalStudySeconds: state.totalStudySeconds + totalSeconds,
     };
     checkAchievements(newState, dispatch);
-  }, [timeLeft, totalSeconds, addReward, completeSession, updateStreak, state, dispatch]);
+  }, [totalSeconds, addReward, completeSession, updateStreak, state, dispatch]);
 
   useEffect(() => {
     if (timeLeft === 0 && isRunning === false && totalSeconds > 0) {
@@ -69,7 +83,7 @@ export default function FocusTimer() {
     if (timeLeft === 0 || !isRunning) closePiP();
   }, [timeLeft, isRunning]);
 
-  useEffect(() => () => closePiP(), []);
+  useEffect(() => () => { closePiP(); if (completeTimeoutRef.current) clearTimeout(completeTimeoutRef.current); }, []);
 
   const startTimer = () => {
     if (timeLeft === null || timeLeft === 0) setTimeLeft(totalSeconds);
@@ -90,16 +104,13 @@ export default function FocusTimer() {
     if (!('documentPictureInPicture' in window)) return;
     try {
       const pip = await window.documentPictureInPicture.requestWindow({
-        width: 320,
-        height: 120,
+        width: 320, height: 120,
       });
       pipRef.current = pip;
       setPipActive(true);
-
       document.querySelectorAll('style').forEach(s => {
         pip.document.head.appendChild(s.cloneNode(true));
       });
-
       const initTime = timeLeft ?? 0;
       const h = Math.floor(initTime / 3600);
       const m = Math.floor((initTime % 3600) / 60);
@@ -109,7 +120,6 @@ export default function FocusTimer() {
           <div class="pip-digits" id="pip-digits">${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}</div>
         </div>
       `;
-
       pip.addEventListener('pagehide', () => closePiP());
     } catch {}
   };
@@ -120,7 +130,7 @@ export default function FocusTimer() {
 
   return (
     <>
-      {isRunning && createPortal(
+      {isRunning && !isMobile() && createPortal(
         <div className="floating-timer">
           <div className="floating-timer-digits">
             <span>{String(hours).padStart(2, '0')}:{String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}</span>

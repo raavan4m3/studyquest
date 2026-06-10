@@ -4,11 +4,16 @@ import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 
 const curveData = [
   { label: '0h', hour: 0, retention: 100, revised: 100 },
-  { label: '1h', hour: 1, retention: 50, revised: 90 },
-  { label: '24h', hour: 24, retention: 30, revised: 65 },
-  { label: '1w', hour: 168, retention: 10, revised: 80 },
-  { label: '1m', hour: 720, retention: 5, revised: 70 },
-  { label: '3m', hour: 2160, retention: 3, revised: 75 },
+  { label: '20m', hour: 0.33, retention: 60, revised: 100 },
+  { label: '1h', hour: 1, retention: 50, revised: 95 },
+  { label: '6h', hour: 6, retention: 40, revised: 93 },
+  { label: '24h', hour: 24, retention: 30, revised: 88 },
+  { label: '3d', hour: 72, retention: 18, revised: 85 },
+  { label: '1w', hour: 168, retention: 10, revised: 90 },
+  { label: '2w', hour: 336, retention: 7, revised: 86 },
+  { label: '1m', hour: 720, retention: 5, revised: 82 },
+  { label: '2m', hour: 1440, retention: 4, revised: 80 },
+  { label: '3m', hour: 2160, retention: 3, revised: 78 },
 ];
 
 function formatCountdown(ts) {
@@ -42,7 +47,7 @@ function ForgettingCurve() {
     return (
       <div className="rev-chart-card">
         <h3 className="rev-chart-title">Memory Retention Curve</h3>
-        <p className="rev-chart-sub">Without revision you forget 90% within a week. Each review re-strengthens the memory.</p>
+        <p className="rev-chart-sub">Without revision, retention drops to ~10% in a week. Spaced revision at increasing intervals keeps retention above 75% even after 3 months.</p>
         <ResponsiveContainer width="100%" height={220}>
           <AreaChart data={curveData} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
             <defs>
@@ -56,13 +61,17 @@ function ForgettingCurve() {
               </linearGradient>
             </defs>
             <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
-            <XAxis dataKey="label" stroke="#8888aa" fontSize={11} />
-            <YAxis domain={[0, 100]} stroke="#8888aa" fontSize={11} tickFormatter={v => `${v}%`} />
-            <Tooltip contentStyle={{ background: '#1a1a3a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8 }} formatter={(v) => [`${v}%`, '']} />
-            <Area type="monotone" dataKey="retention" stroke="#e17055" strokeWidth={2} fill="url(#retentionGrad)" strokeDasharray="5 5" />
-            <Area type="monotone" dataKey="revised" stroke="#00b894" strokeWidth={2} fill="url(#revisedGrad)" />
-            {curveData.filter(d => d.hour > 0 && d.hour < 2160).map((d, i) => (
-              <ReferenceLine key={i} x={d.label} stroke="rgba(255,255,255,0.1)" strokeDasharray="2 2" />
+            <XAxis dataKey="label" stroke="#8888aa" fontSize={11} axisLine={false} tickLine={false} />
+            <YAxis domain={[0, 100]} stroke="#8888aa" fontSize={11} tickFormatter={v => `${v}%`} axisLine={false} tickLine={false} />
+            <Tooltip
+              contentStyle={{ background: '#1a1a3a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8 }}
+              formatter={(v, name) => [ `${v}%`, name === 'retention' ? 'Without revision' : 'With spaced revision' ]}
+              labelFormatter={l => `Time: ${l}`}
+            />
+            <Area type="monotone" dataKey="retention" stroke="#e17055" strokeWidth={2} fill="url(#retentionGrad)" strokeDasharray="6 4" dot={false} activeDot={{ r: 4, fill: '#e17055' }} />
+            <Area type="monotone" dataKey="revised" stroke="#00b894" strokeWidth={2} fill="url(#revisedGrad)" dot={false} activeDot={{ r: 4, fill: '#00b894' }} />
+            {['1h', '24h', '1w', '1m'].map((l, i) => (
+              <ReferenceLine key={i} x={l} stroke="rgba(255,255,255,0.06)" strokeDasharray="2 2" />
             ))}
           </AreaChart>
         </ResponsiveContainer>
