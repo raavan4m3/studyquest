@@ -61,11 +61,13 @@ export default function TaskManager() {
     toggleTask(id);
     setCompleting(id);
     addReward(15, 10);
-    const lines = [`+15 XP Earned`, `${text} Mastery Increased`];
+    const rewards = [`+15 XP`, `${text} Mastery Increased`];
+    let badge = null;
     if (state.tasksCompleted > 0 && state.tasksCompleted % 5 === 0) {
-      lines.push(`Skill Unlocked: ${text.split(' ').slice(0, 2).join(' ')} Expert`);
+      rewards.push(`🔓 Skill Unlocked: ${text.split(' ').slice(0, 2).join(' ')} Expert`);
+      badge = 'NEW SKILL ACQUIRED';
     }
-    emitNotification('QUEST_COMPLETED', lines);
+    emitNotification('QUEST_COMPLETED', { task: text, rewards, badge, progress: 20 });
     setTimeout(() => {
       completeTask(id);
       setCompleting(null);

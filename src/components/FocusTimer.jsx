@@ -57,9 +57,7 @@ export default function FocusTimer() {
     addReward(50, 25);
     completeSession(totalSeconds);
     updateStreak();
-    emitNotification('LECTURE_COMPLETED', [
-      `+50 XP Earned`,
-    ]);
+    emitNotification('XP_GAIN', { xp: 50, label: 'Lecture Completed' });
     if (!isMobile()) {
       setShowComplete(true);
       completeTimeoutRef.current = setTimeout(() => {

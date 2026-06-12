@@ -1,4 +1,5 @@
 import { createContext, useContext, useReducer, useCallback, useEffect, useRef, useState } from 'react';
+import { emitNotification } from '../components/SystemNotification';
 
 const GameContext = createContext();
 
@@ -348,6 +349,59 @@ export function GameProvider({ children }) {
   const levelProgress = getLevelProgress(state.xp);
   const nextLevelXp = LEVELS.find(l => l.level === level + 1)?.xpRequired || state.xp;
   const rank = getRank(level);
+
+  const prevLevelRef = useRef(null);
+  const prevRankRef = useRef(null);
+  const prevSessionsRef = useRef(null);
+  const prevTasksRef = useRef(null);
+
+  useEffect(() => {
+    if (!loaded) return;
+    if (prevLevelRef.current === null) {
+      prevLevelRef.current = level;
+      prevRankRef.current = rank;
+      prevSessionsRef.current = state.sessionsCompleted;
+      prevTasksRef.current = state.tasksCompleted;
+      return;
+    }
+    // Level up
+    if (level > prevLevelRef.current) {
+      const rewards = [`+${level * 50} coins bonus`, `Study Streak +1 Day`, `New challenges unlocked`];
+      emitNotification('LEVEL_UP', { oldLevel: prevLevelRef.current, newLevel: level, rewards });
+    }
+    prevLevelRef.current = level;
+    // Rank up
+    if (rank.rank !== prevRankRef.current.rank) {
+      emitNotification('RANK_UP', {
+        oldRank: prevRankRef.current.icon + ' ' + prevRankRef.current.rank,
+        newRank: rank.icon + ' ' + rank.rank,
+        rewards: ['New tier unlocked', 'Bonus rewards available', 'Harder quests open'],
+      });
+    }
+    prevRankRef.current = rank;
+    // Subject mastery (every 5 sessions)
+    if (state.sessionsCompleted > prevSessionsRef.current && state.sessionsCompleted % 5 === 0) {
+      emitNotification('SUBJECT_MASTERED', {
+        task: 'Study Sessions',
+        rewards: [`+200 XP`, `Subject Level ${Math.floor(state.sessionsCompleted / 5)}`],
+        progress: 50,
+      });
+    }
+    prevSessionsRef.current = state.sessionsCompleted;
+    // Daily mission check
+    if (state.tasksCompleted > prevTasksRef.current && state.todayStudySeconds >= 3600 && state.tasksCompleted % 3 === 0) {
+      emitNotification('DAILY_MISSION', {
+        rewards: [
+          `Study Time: ${Math.floor(state.todayStudySeconds / 3600)}h ${Math.floor((state.todayStudySeconds % 3600) / 60)}m`,
+          `Lectures Completed: ${state.sessionsCompleted}`,
+          `+750 XP`,
+          `Focus Streak +1 Day`,
+        ],
+        progress: 100,
+      });
+    }
+    prevTasksRef.current = state.tasksCompleted;
+  }, [state, loaded, level, rank]);
 
   useEffect(() => {
     saveState(state);
