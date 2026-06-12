@@ -14,7 +14,6 @@ import ConfettiEffect from './ConfettiEffect';
 import RewardPopup from './RewardPopup';
 import LevelUpPopup from './LevelUpPopup';
 import AchievementPopup from './AchievementPopup';
-import ThreeScene from './ThreeScene';
 import InstallButton from './InstallButton';
 import SystemNotification from './SystemNotification';
 
@@ -64,7 +63,6 @@ export default function Layout() {
 
   const renderContent = () => (
     <>
-      <ThreeScene />
       <div className={`main-content ${activeTab !== 'main' ? 'hidden' : ''}`}>
         <div className="left-panel">
           <FocusTimer />
