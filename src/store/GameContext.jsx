@@ -23,6 +23,23 @@ function getLevel(xp) {
   return lvl;
 }
 
+const RANKS = [
+  { rank: 'E', minLevel: 1, icon: '⬛', color: '#888888' },
+  { rank: 'D', minLevel: 2, icon: '🟩', color: '#4caf50' },
+  { rank: 'C', minLevel: 4, icon: '🟦', color: '#2196f3' },
+  { rank: 'B', minLevel: 6, icon: '🟪', color: '#9c27b0' },
+  { rank: 'A', minLevel: 8, icon: '🟥', color: '#f44336' },
+  { rank: 'S', minLevel: 10, icon: '⭐', color: '#ffd700' },
+];
+
+function getRank(level) {
+  let rank = RANKS[0];
+  for (const r of RANKS) {
+    if (level >= r.minLevel) rank = r;
+  }
+  return rank;
+}
+
 function getLevelProgress(xp) {
   const lvl = getLevel(xp);
   const current = LEVELS.find(l => l.level === lvl);
@@ -330,6 +347,7 @@ export function GameProvider({ children }) {
   const level = getLevel(state.xp);
   const levelProgress = getLevelProgress(state.xp);
   const nextLevelXp = LEVELS.find(l => l.level === level + 1)?.xpRequired || state.xp;
+  const rank = getRank(level);
 
   useEffect(() => {
     saveState(state);
@@ -345,6 +363,7 @@ export function GameProvider({ children }) {
     level,
     levelProgress,
     nextLevelXp,
+    rank,
     addXP,
     addCoins,
     addReward,

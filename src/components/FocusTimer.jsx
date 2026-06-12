@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { useGame } from '../store/GameContext';
 import { checkAchievements } from '../utils/achievements';
+import { emitNotification } from './SystemNotification';
 
 function isMobile() {
   return window.innerWidth < 768;
@@ -56,6 +57,11 @@ export default function FocusTimer() {
     addReward(50, 25);
     completeSession(totalSeconds);
     updateStreak();
+    emitNotification('LECTURE_COMPLETED', [
+      `+50 XP Earned`,
+      `Focus Streak: ${state.streak + 1} Days`,
+      ...((state.streak + 1) % 7 === 0 ? [`Achievement Unlocked: Consistency Hunter`] : []),
+    ]);
     if (!isMobile()) {
       setShowComplete(true);
       completeTimeoutRef.current = setTimeout(() => {
@@ -141,7 +147,8 @@ export default function FocusTimer() {
         document.body
       )}
 
-      <div className="timer-section">
+      <div className="timer-section command-panel">
+        <div className="command-panel-title">Focus Session</div>
         {showComplete ? (
           <div className="session-complete">
             <div className="complete-icon">🎉</div>

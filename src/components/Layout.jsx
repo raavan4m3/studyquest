@@ -16,11 +16,12 @@ import LevelUpPopup from './LevelUpPopup';
 import AchievementPopup from './AchievementPopup';
 import ThreeScene from './ThreeScene';
 import InstallButton from './InstallButton';
+import SystemNotification from './SystemNotification';
 
 export default function Layout() {
   const {
     showReward, showLevelUp, showAchievement,
-    clearReward, clearLevelUp, clearAchievement, revisions,
+    clearReward, clearLevelUp, clearAchievement, revisions, rank, currentTheme, level,
   } = useGame();
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState(() => {
@@ -100,6 +101,7 @@ export default function Layout() {
       <RewardPopup reward={showReward} onComplete={clearReward} />
       <LevelUpPopup level={showLevelUp?.level} onComplete={clearLevelUp} />
       <AchievementPopup achievement={showAchievement} onComplete={clearAchievement} />
+      <SystemNotification />
       {revAlert && createPortal(
         <div className="rev-alert" onClick={() => setRevAlert(null)}>
           <span className="rev-alert-icon">📚</span>
@@ -110,7 +112,10 @@ export default function Layout() {
 
       <header className="app-header">
         <div className="header-left">
-          <span className="app-logo">🎮 StudyQuest</span>
+          <span className="app-logo">
+            {currentTheme === 'solo' && <span className="rank-badge" style={{ color: rank.color }}>{rank.icon} {rank.rank}-Rank</span>}
+            <span>🎮 StudyQuest</span>
+          </span>
           <XPBar />
         </div>
         <div className="header-center">

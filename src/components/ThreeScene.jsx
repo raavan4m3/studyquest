@@ -357,9 +357,94 @@ function CyberpunkDecor() {
   );
 }
 
-// ─── SOLO LEVELING THEME — static background ──────────────────────
+// ─── SOLO LEVELING THEME — 3D portal over background ─────────────
 
-// (Solo uses a static background image — no Three.js)
+function SoloEnvironment() {
+  const portalRef = useRef();
+  const innerRef = useRef();
+  const glowRef = useRef();
+  const particlesRef = useRef([]);
+  const runeCount = 12;
+
+  useFrame((s) => {
+    const t = s.clock.elapsedTime;
+    if (portalRef.current) {
+      portalRef.current.rotation.y = t * 0.06;
+      portalRef.current.rotation.z = Math.sin(t * 0.15) * 0.03;
+    }
+    if (innerRef.current) {
+      innerRef.current.rotation.y = -t * 0.1;
+      innerRef.current.scale.setScalar(1 + Math.sin(t * 0.4) * 0.03);
+    }
+    if (glowRef.current) {
+      glowRef.current.material.opacity = 0.15 + Math.sin(t * 0.3) * 0.08;
+    }
+    particlesRef.current.forEach((p, i) => {
+      if (p) {
+        p.position.y += Math.sin(t * 0.5 + i) * 0.002;
+        p.position.x += Math.cos(t * 0.3 + i * 0.7) * 0.001;
+        p.material.opacity = 0.3 + Math.sin(t + i) * 0.2;
+      }
+    });
+  });
+
+  return (
+    <group>
+      {/* Glow under portal */}
+      <mesh ref={glowRef} position={[0, -0.3, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <planeGeometry args={[4, 4]} />
+        <meshBasicMaterial color="#7c4dff" transparent opacity={0.12} />
+      </mesh>
+      {/* Portal rings */}
+      <Float speed={0.3} rotationIntensity={0.01} floatIntensity={0.08}>
+        <group ref={portalRef}>
+          {/* Outer ring */}
+          <mesh><torusGeometry args={[0.9, 0.03, 32, 64]} /><meshBasicMaterial color="#7c4dff" transparent opacity={0.35} /></mesh>
+          {/* Middle ring */}
+          <mesh><torusGeometry args={[0.78, 0.02, 24, 48]} /><meshBasicMaterial color="#448aff" transparent opacity={0.25} /></mesh>
+          {/* Inner ring */}
+          <mesh ref={innerRef}><torusGeometry args={[0.65, 0.05, 32, 64]} /><meshBasicMaterial color="#00e5ff" transparent opacity={0.3} /></mesh>
+          {/* Portal core */}
+          <mesh position={[0, 0, -0.05]}><circleGeometry args={[0.6, 32]} /><meshBasicMaterial color="#0d0020" transparent opacity={0.5} /></mesh>
+          {/* Runes around portal */}
+          {Array.from({ length: runeCount }).map((_, i) => {
+            const angle = (i / runeCount) * Math.PI * 2;
+            return (
+              <mesh key={i} position={[Math.cos(angle) * 0.84, Math.sin(angle) * 0.84, 0.02]}>
+                <boxGeometry args={[0.03, 0.06, 0.01]} />
+                <meshBasicMaterial color={i % 2 === 0 ? '#7c4dff' : '#00e5ff'} transparent opacity={0.7} />
+              </mesh>
+            );
+          })}
+        </group>
+      </Float>
+      {/* Floating particles */}
+      {Array.from({ length: 20 }).map((_, i) => (
+        <mesh
+          key={i}
+          ref={el => particlesRef.current[i] = el}
+          position={[(Math.random() - 0.5) * 4, (Math.random() - 0.5) * 2.5, (Math.random() - 0.5) * 3 - 1]}
+        >
+          <sphereGeometry args={[0.02 + Math.random() * 0.03, 6, 6]} />
+          <meshBasicMaterial color={Math.random() > 0.5 ? '#7c4dff' : '#00e5ff'} transparent opacity={0.4} />
+        </mesh>
+      ))}
+      {/* Light rays from portal */}
+      <mesh position={[0, 0.2, -0.3]} rotation={[0.2, 0, 0]}>
+        <planeGeometry args={[0.8, 1.2]} />
+        <meshBasicMaterial color="#7c4dff" transparent opacity={0.04} />
+      </mesh>
+      <mesh position={[0.3, -0.1, -0.4]} rotation={[0.1, 0.3, 0]}>
+        <planeGeometry args={[0.6, 1]} />
+        <meshBasicMaterial color="#448aff" transparent opacity={0.03} />
+      </mesh>
+    </group>
+  );
+}
+
+function SoloDecor() {
+  return <Sparkles count={100} scale={[10, 5, 10]} size={0.025} speed={0.4} color="#7c4dff" />;
+}
 
 // ─── ANIME THEME — wallpaper background with floating petals
 
@@ -494,6 +579,7 @@ const ENVIRONMENTS = {
   ocean:    { scene: OceanEnvironment,    decor: OceanDecor,    bg: '#0a1628', light: '#4fc3f7' },
   space:    { scene: SpaceEnvironment,    decor: SpaceDecor,    bg: '#050510', light: '#b39ddb' },
   cyberpunk:{ scene: CyberpunkEnvironment,decor: CyberpunkDecor,bg: '#0a000a', light: '#ff0066' },
+  solo:     { scene: SoloEnvironment,     decor: SoloDecor,     bg: '#050008', light: '#7c4dff' },
   anime:    { scene: AnimeEnvironment,    decor: AnimeDecor,    bg: '#f0ece8', light: '#f8bbd0' },
   minimal:  { scene: MinimalEnvironment,  decor: MinimalDecor,  bg: '#0a0a0a', light: '#ffffff' },
 };
@@ -507,7 +593,7 @@ function SceneContent() {
 
   return (
     <>
-      {currentTheme !== 'anime' && <color attach="background" args={[env.bg]} />}
+      {currentTheme !== 'anime' && currentTheme !== 'solo' && <color attach="background" args={[env.bg]} />}
       <ambientLight intensity={currentTheme === 'anime' ? 0.8 : isDark ? 0.25 : 0.6} />
       <pointLight position={[2, 3, 4]} intensity={isDark ? 0.5 : 0.8} color={env.light} />
       <pointLight position={[-2, -1, 3]} intensity={isDark ? 0.3 : 0.5} color={env.light} />
@@ -537,10 +623,9 @@ export default function ThreeScene() {
       </video>
     </div>
   );
-  if (currentTheme === 'solo') return <div className="three-scene three-scene-solo" />;
   return (
     <div className="three-scene">
-      <Canvas camera={{ position: [0, 0, 3.6], fov: 50 }} dpr={[1, 1.5]} gl={{ alpha: currentTheme === 'anime' }}>
+      <Canvas camera={{ position: [0, 0, 3.6], fov: 50 }} dpr={[1, 1.5]} gl={{ alpha: currentTheme === 'anime' || currentTheme === 'solo' }}>
         <SceneContent />
       </Canvas>
     </div>

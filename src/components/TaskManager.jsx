@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { useGame } from '../store/GameContext';
 import { checkAchievements } from '../utils/achievements';
+import { emitNotification } from './SystemNotification';
 
 function ConfirmModal({ show, task, onYes, onNo }) {
   if (!show) return null;
@@ -46,20 +47,25 @@ export default function TaskManager() {
   const handleConfirmYes = () => {
     if (!confirmTask) return;
     scheduleRevisions(confirmTask.text);
-    finishTask(confirmTask.id);
+    finishTask(confirmTask.id, confirmTask.text);
     setConfirmTask(null);
   };
 
   const handleConfirmNo = () => {
     if (!confirmTask) return;
-    finishTask(confirmTask.id);
+    finishTask(confirmTask.id, confirmTask.text);
     setConfirmTask(null);
   };
 
-  const finishTask = (id) => {
+  const finishTask = (id, text) => {
     toggleTask(id);
     setCompleting(id);
     addReward(15, 10);
+    emitNotification('QUEST_COMPLETED', [
+      `+15 XP Earned`,
+      `${text} Mastery Increased`,
+      ...(Math.random() > 0.7 ? [`Skill Unlocked: ${text.split(' ').slice(0,2).join(' ')} Expert`] : []),
+    ]);
     setTimeout(() => {
       completeTask(id);
       setCompleting(null);
@@ -73,7 +79,7 @@ export default function TaskManager() {
   };
 
   return (
-    <div className="task-section">
+    <div className="task-section command-panel">
       {createPortal(
         <ConfirmModal
           show={!!confirmTask}
@@ -83,7 +89,7 @@ export default function TaskManager() {
         />,
         document.body
       )}
-      <h2 className="section-title">Tasks</h2>
+      <div className="command-panel-title">Active Quests</div>
       <div className="task-input-row">
         <input
           ref={inputRef}

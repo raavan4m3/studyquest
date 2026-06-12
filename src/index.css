@@ -101,6 +101,22 @@ body {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.rank-badge {
+  font-size: 11px;
+  font-weight: 700;
+  background: rgba(0,0,0,0.5);
+  padding: 2px 8px;
+  border-radius: 6px;
+  border: 1px solid currentColor;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  letter-spacing: 0.5px;
 }
 
 .header-center {
@@ -411,6 +427,11 @@ body {
   background-size: cover;
   background-position: center;
   background-color: #050008;
+}
+
+.app[data-theme="solo"] .three-scene canvas {
+  opacity: 0.8;
+  mix-blend-mode: screen;
 }
 
 .app-main {
@@ -2048,4 +2069,118 @@ body {
   .stats-grid { grid-template-columns: 1fr; }
   .revision-group { padding: 12px; }
   .mobile-nav { width: 100vw; border-radius: 0; top: 56px; }
+}
+
+/* System Notification */
+.sys-notif-container {
+  position: fixed;
+  top: 80px;
+  right: 20px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  pointer-events: none;
+}
+
+.sys-notif {
+  position: relative;
+  background: rgba(5,0,8,0.92);
+  border: 1px solid var(--notif-color);
+  border-radius: 12px;
+  padding: 16px 20px;
+  min-width: 280px;
+  max-width: 360px;
+  animation: notifSlideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1), notifFadeOut 0.3s ease 3.5s forwards;
+  box-shadow: 0 0 30px rgba(0,0,0,0.6);
+  overflow: hidden;
+}
+
+.sys-notif-glow {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--notif-color), transparent);
+  animation: notifScan 1.5s linear infinite;
+}
+
+.sys-notif-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.sys-notif-icon { font-size: 16px; }
+
+.sys-notif-title {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--notif-color);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.sys-notif-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sys-notif-line {
+  font-size: 13px;
+  font-weight: 500;
+  color: #e0d0ff;
+  padding: 3px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+
+.sys-notif-line:last-child { border-bottom: none; }
+
+.sys-notif-progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 2px;
+  background: var(--notif-color);
+  animation: notifProgress 4s linear forwards;
+}
+
+@keyframes notifSlideIn {
+  from { opacity: 0; transform: translateX(40px) scale(0.95); }
+  to { opacity: 1; transform: translateX(0) scale(1); }
+}
+
+@keyframes notifFadeOut {
+  to { opacity: 0; transform: translateX(20px); }
+}
+
+@keyframes notifScan {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+@keyframes notifProgress {
+  from { width: 100%; }
+  to { width: 0%; }
+}
+
+/* Command panel */
+.command-panel {
+  background: rgba(5,0,8,0.6);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(124,77,255,0.15);
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.command-panel-title {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: rgba(124,77,255,0.6);
+  margin-bottom: 12px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(124,77,255,0.1);
 }

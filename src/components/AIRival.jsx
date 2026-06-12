@@ -27,7 +27,8 @@ export default function AIRival({ compact }) {
 
   if (compact) {
     return (
-      <div className="rival-thought">
+      <div className="rival-thought command-panel">
+        <div className="command-panel-title">System Message</div>
         <div className="rival-thought-header">
           <span className="rival-thought-icon">💡</span>
           <span className="rival-thought-label">motivation</span>
