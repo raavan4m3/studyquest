@@ -357,6 +357,74 @@ function CyberpunkDecor() {
   );
 }
 
+// ─── SOLO LEVELING THEME ──────────────────────────────────────────
+
+function SoloEnvironment() {
+  const gateRef = useRef();
+  const innerRef = useRef();
+  const orbRefs = useRef([]);
+
+  useFrame((s) => {
+    const t = s.clock.elapsedTime;
+    if (gateRef.current) {
+      gateRef.current.rotation.z = Math.sin(t * 0.2) * 0.05;
+      gateRef.current.rotation.y = t * 0.08;
+    }
+    if (innerRef.current) {
+      innerRef.current.rotation.y = -t * 0.12;
+      innerRef.current.scale.setScalar(1 + Math.sin(t * 0.5) * 0.02);
+    }
+    orbRefs.current.forEach((orb, i) => {
+      if (orb) {
+        orb.position.y = Math.sin(t * 0.6 + i * 1.5) * 0.3;
+        orb.position.x = Math.cos(t * 0.4 + i * 1.5) * 0.08;
+      }
+    });
+  });
+
+  return (
+    <group>
+      {/* Main gate ring */}
+      <Float speed={0.5} rotationIntensity={0.02} floatIntensity={0.1}>
+        <group ref={gateRef}>
+          <mesh><torusGeometry args={[0.85, 0.04, 32, 64]} /><meshBasicMaterial color="#7c4dff" transparent opacity={0.3} /></mesh>
+          <mesh ref={innerRef}><torusGeometry args={[0.72, 0.06, 32, 64]} /><meshBasicMaterial color="#00e5ff" transparent opacity={0.25} /></mesh>
+          <mesh position={[0, 0, -0.05]}><circleGeometry args={[0.7, 32]} /><meshBasicMaterial color="#1a0033" transparent opacity={0.4} /></mesh>
+          {Array.from({ length: 8 }).map((_, i) => (
+            <mesh key={i} position={[Math.cos((i / 8) * Math.PI * 2) * 0.78, Math.sin((i / 8) * Math.PI * 2) * 0.78, 0]}>
+              <boxGeometry args={[0.04, 0.04, 0.02]} />
+              <meshBasicMaterial color="#b388ff" />
+            </mesh>
+          ))}
+        </group>
+      </Float>
+      {/* Floating shadow orbs */}
+      {Array.from({ length: 6 }).map((_, i) => (
+        <mesh key={i} ref={el => orbRefs.current[i] = el} position={[(Math.random() - 0.5) * 2.5, (Math.random() - 0.5) * 1.5, (Math.random() - 0.5) * 2 - 1]}>
+          <sphereGeometry args={[0.03 + Math.random() * 0.03, 8, 8]} />
+          <meshBasicMaterial color="#b388ff" transparent opacity={0.6} />
+        </mesh>
+      ))}
+      {/* Floating dagger */}
+      <Float speed={0.8} rotationIntensity={0.05} floatIntensity={0.2}>
+        <mesh position={[-0.4, -0.6, 0.6]} rotation={[0.2, 0.5, 0.3]}><boxGeometry args={[0.03, 0.25, 0.01]} /><meshStandardMaterial color="#e0e0ff" metalness={0.9} roughness={0.1} /></mesh>
+        <mesh position={[-0.4, -0.45, 0.6]} rotation={[0.2, 0.5, 0.3]}><boxGeometry args={[0.03, 0.03, 0.04]} /><meshStandardMaterial color="#7c4dff" metalness={0.8} roughness={0.2} /></mesh>
+        <mesh position={[-0.4, -0.73, 0.6]} rotation={[0.2, 0.5, 0.3]}><boxGeometry args={[0.06, 0.01, 0.02]} /><meshStandardMaterial color="#e0e0ff" metalness={0.9} roughness={0.1} /></mesh>
+      </Float>
+      <mesh position={[0, -0.55, 0]} rotation={[-Math.PI / 2, 0, 0]}><planeGeometry args={[3, 3]} /><meshBasicMaterial color="#7c4dff" transparent opacity={0.06} /></mesh>
+    </group>
+  );
+}
+
+function SoloDecor() {
+  return (
+    <>
+      <Sparkles count={60} scale={[8, 4, 8]} size={0.02} speed={0.3} color="#00e5ff" />
+      <Sparkles count={40} scale={[6, 3, 6]} size={0.015} speed={0.2} color="#b388ff" />
+    </>
+  );
+}
+
 // ─── ANIME THEME — wallpaper background with floating petals
 
 function AnimePetals() {
@@ -490,6 +558,7 @@ const ENVIRONMENTS = {
   ocean:    { scene: OceanEnvironment,    decor: OceanDecor,    bg: '#0a1628', light: '#4fc3f7' },
   space:    { scene: SpaceEnvironment,    decor: SpaceDecor,    bg: '#050510', light: '#b39ddb' },
   cyberpunk:{ scene: CyberpunkEnvironment,decor: CyberpunkDecor,bg: '#0a000a', light: '#ff0066' },
+  solo:     { scene: SoloEnvironment,     decor: SoloDecor,     bg: '#050008', light: '#7c4dff' },
   anime:    { scene: AnimeEnvironment,    decor: AnimeDecor,    bg: '#f0ece8', light: '#f8bbd0' },
   minimal:  { scene: MinimalEnvironment,  decor: MinimalDecor,  bg: '#0a0a0a', light: '#ffffff' },
 };

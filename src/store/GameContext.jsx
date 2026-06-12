@@ -59,7 +59,7 @@ const initialState = {
   tasksCompleted: 0,
   sessionsCompleted: 0,
   achievements: [],
-  unlockedThemes: ['dark', 'light', 'forest', 'ocean', 'space', 'cyberpunk', 'anime', 'minimal'],
+  unlockedThemes: ['dark', 'light', 'forest', 'ocean', 'space', 'cyberpunk', 'anime', 'solo', 'minimal'],
   currentTheme: 'light',
   unlockedPets: ['blob'],
   currentPet: 'blob',
