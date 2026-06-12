@@ -59,8 +59,6 @@ export default function FocusTimer() {
     updateStreak();
     emitNotification('LECTURE_COMPLETED', [
       `+50 XP Earned`,
-      `Focus Streak: ${state.streak + 1} Days`,
-      ...((state.streak + 1) % 7 === 0 ? [`Achievement Unlocked: Consistency Hunter`] : []),
     ]);
     if (!isMobile()) {
       setShowComplete(true);

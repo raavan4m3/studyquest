@@ -61,11 +61,11 @@ export default function TaskManager() {
     toggleTask(id);
     setCompleting(id);
     addReward(15, 10);
-    emitNotification('QUEST_COMPLETED', [
-      `+15 XP Earned`,
-      `${text} Mastery Increased`,
-      ...(Math.random() > 0.7 ? [`Skill Unlocked: ${text.split(' ').slice(0,2).join(' ')} Expert`] : []),
-    ]);
+    const lines = [`+15 XP Earned`, `${text} Mastery Increased`];
+    if (state.tasksCompleted > 0 && state.tasksCompleted % 5 === 0) {
+      lines.push(`Skill Unlocked: ${text.split(' ').slice(0, 2).join(' ')} Expert`);
+    }
+    emitNotification('QUEST_COMPLETED', lines);
     setTimeout(() => {
       completeTask(id);
       setCompleting(null);
