@@ -541,7 +541,7 @@ body {
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 12px 20px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 20px var(--glow);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
   animation: floatIn 0.3s ease-out;
 }
 
@@ -590,7 +590,6 @@ body {
   font-weight: 700;
   color: #e0e0ff;
   letter-spacing: 4px;
-  text-shadow: 0 0 40px rgba(108, 92, 231, 0.3);
 }
 
 .timer-display {
@@ -621,7 +620,6 @@ body {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  text-shadow: 0 0 40px var(--glow);
   letter-spacing: 4px;
   transition: var(--transition);
 }
@@ -670,10 +668,9 @@ body {
 .timer-btn.start {
   background: linear-gradient(135deg, var(--accent), var(--accent2));
   color: white;
-  box-shadow: 0 4px 20px var(--glow);
 }
 
-.timer-btn.start:hover { transform: translateY(-2px); box-shadow: 0 8px 30px var(--glow); }
+.timer-btn.start:hover { transform: translateY(-2px); }
 .timer-btn.start:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
 
 .timer-btn.pause {
@@ -1043,7 +1040,7 @@ body {
   transition: var(--transition);
 }
 
-.timer-input-group input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--glow); }
+.timer-input-group input:focus { border-color: var(--accent); }
 
 .apply-btn {
   padding: 10px 24px;
@@ -1058,7 +1055,7 @@ body {
   font-family: inherit;
 }
 
-.apply-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 20px var(--glow); }
+.apply-btn:hover { transform: translateY(-1px); }
 
 /* Stats Panel */
 .stats-list {
@@ -2623,7 +2620,7 @@ body {
   border: 1px solid rgba(124,77,255,0.25);
   border-radius: 12px;
   padding: 16px;
-  box-shadow: 0 0 30px rgba(124,77,255,0.06), inset 0 0 30px rgba(124,77,255,0.02);
+  box-shadow: none;
 }
 
 .command-panel::before,
