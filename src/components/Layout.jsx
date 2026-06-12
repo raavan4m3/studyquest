@@ -113,8 +113,11 @@ export default function Layout() {
       <header className="app-header">
         <div className="header-left">
           <span className="app-logo">
-            {currentTheme === 'solo' && <span className="rank-badge" style={{ color: rank.color }}>{rank.icon} {rank.rank}-Rank</span>}
-            <span>🎮 StudyQuest</span>
+            {currentTheme === 'solo' ? (
+              <span className="rank-badge" style={{ color: rank.color }}>{rank.icon} {rank.rank}-Rank</span>
+            ) : (
+              <span>🎮 StudyQuest</span>
+            )}
           </span>
           <XPBar />
         </div>
