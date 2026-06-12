@@ -12,12 +12,10 @@ export default function FocusTimer() {
   const { timerHours, timerMinutes, timerSeconds, addReward, updateStreak, completeSession, dispatch, ...state } = useGame();
   const [timeLeft, setTimeLeft] = useState(null);
   const [isRunning, setIsRunning] = useState(false);
-  const [showComplete, setShowComplete] = useState(false);
   const [pipActive, setPipActive] = useState(false);
   const intervalRef = useRef(null);
   const pipRef = useRef(null);
   const endTimeRef = useRef(null);
-  const completeTimeoutRef = useRef(null);
 
   const totalSeconds = timerHours * 3600 + timerMinutes * 60 + timerSeconds;
 
@@ -58,15 +56,7 @@ export default function FocusTimer() {
     completeSession(totalSeconds);
     updateStreak();
     emitNotification('XP_GAIN', { xp: 50, label: 'Lecture Completed' });
-    if (!isMobile()) {
-      setShowComplete(true);
-      completeTimeoutRef.current = setTimeout(() => {
-        setShowComplete(false);
-        setTimeLeft(totalSeconds);
-      }, 3000);
-    } else {
-      setTimeLeft(totalSeconds);
-    }
+    setTimeLeft(totalSeconds);
     const newState = {
       ...state,
       sessionsCompleted: state.sessionsCompleted + 1,
@@ -85,7 +75,7 @@ export default function FocusTimer() {
     if (timeLeft === 0 || !isRunning) closePiP();
   }, [timeLeft, isRunning]);
 
-  useEffect(() => () => { closePiP(); if (completeTimeoutRef.current) clearTimeout(completeTimeoutRef.current); }, []);
+  useEffect(() => () => { closePiP(); }, []);
 
   const startTimer = () => {
     if (timeLeft === null || timeLeft === 0) setTimeLeft(totalSeconds);
@@ -145,48 +135,38 @@ export default function FocusTimer() {
 
       <div className="timer-section command-panel">
         <div className="command-panel-title">Focus Session</div>
-        {showComplete ? (
-          <div className="session-complete">
-            <div className="complete-icon">🎉</div>
-            <h2>Session Complete!</h2>
-            <p>Great focus! Take a deep breath.</p>
+        <div className="timer-display">
+          <div className="timer-digits">
+            <span className="digit-group">
+              <span className="digit">{String(hours).padStart(2, '0')}</span>
+              <span className="digit-label">HR</span>
+            </span>
+            <span className="digit-sep">:</span>
+            <span className="digit-group">
+              <span className="digit">{String(minutes).padStart(2, '0')}</span>
+              <span className="digit-label">MIN</span>
+            </span>
+            <span className="digit-sep">:</span>
+            <span className="digit-group">
+              <span className="digit">{String(seconds).padStart(2, '0')}</span>
+              <span className="digit-label">SEC</span>
+            </span>
           </div>
-        ) : (
-          <>
-            <div className="timer-display">
-              <div className="timer-digits">
-                <span className="digit-group">
-                  <span className="digit">{String(hours).padStart(2, '0')}</span>
-                  <span className="digit-label">HR</span>
-                </span>
-                <span className="digit-sep">:</span>
-                <span className="digit-group">
-                  <span className="digit">{String(minutes).padStart(2, '0')}</span>
-                  <span className="digit-label">MIN</span>
-                </span>
-                <span className="digit-sep">:</span>
-                <span className="digit-group">
-                  <span className="digit">{String(seconds).padStart(2, '0')}</span>
-                  <span className="digit-label">SEC</span>
-                </span>
-              </div>
-            </div>
-            <div className="timer-controls">
-              {!isRunning ? (
-                <button className="timer-btn start" onClick={startTimer} disabled={timeLeft === 0}>
-                  ▶ Start
-                </button>
-              ) : (
-                <button className="timer-btn pause" onClick={pauseTimer}>
-                  ⏸ Pause
-                </button>
-              )}
-              <button className="timer-btn reset" onClick={resetTimer}>
-                ↺ Reset
-              </button>
-            </div>
-          </>
-        )}
+        </div>
+        <div className="timer-controls">
+          {!isRunning ? (
+            <button className="timer-btn start" onClick={startTimer} disabled={timeLeft === 0}>
+              ▶ Start
+            </button>
+          ) : (
+            <button className="timer-btn pause" onClick={pauseTimer}>
+              ⏸ Pause
+            </button>
+          )}
+          <button className="timer-btn reset" onClick={resetTimer}>
+            ↺ Reset
+          </button>
+        </div>
       </div>
     </>
   );
