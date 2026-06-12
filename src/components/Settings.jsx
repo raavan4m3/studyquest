@@ -18,7 +18,7 @@ export default function Settings({ onClose }) {
 
   return (
     <div className="settings-overlay" onClick={onClose}>
-      <div className="settings-panel" onClick={e => e.stopPropagation()}>
+      <div className="settings-panel panel-border" onClick={e => e.stopPropagation()}>
         <div className="settings-header">
           <h2>Settings</h2>
           <button className="settings-close" onClick={onClose}>✕</button>

@@ -50,7 +50,7 @@ export default function StatisticsDashboard() {
   ];
 
   return (
-    <div className="stats-dashboard">
+    <div className="stats-dashboard panel-border">
       <div className="stats-grid">
         {stats.map(s => (
           <div key={s.label} className="stat-card">

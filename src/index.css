@@ -2614,12 +2614,48 @@ body {
 }
 
 /* Command panel */
-.command-panel {
+/* Panel border with corner brackets */
+.command-panel,
+.panel-border {
+  position: relative;
   background: rgba(5,0,8,0.6);
   backdrop-filter: blur(12px);
-  border: 1px solid rgba(124,77,255,0.15);
+  border: 1px solid rgba(124,77,255,0.25);
   border-radius: 12px;
   padding: 16px;
+  box-shadow: 0 0 30px rgba(124,77,255,0.06), inset 0 0 30px rgba(124,77,255,0.02);
+}
+
+.command-panel::before,
+.panel-border::before {
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: -1px;
+  width: 16px;
+  height: 16px;
+  border-color: rgba(124,77,255,0.5);
+  border-style: solid;
+  border-width: 2px 0 0 2px;
+  border-radius: 11px 0 0 0;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.command-panel::after,
+.panel-border::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  right: -1px;
+  width: 16px;
+  height: 16px;
+  border-color: rgba(124,77,255,0.5);
+  border-style: solid;
+  border-width: 0 2px 2px 0;
+  border-radius: 0 0 11px 0;
+  pointer-events: none;
+  z-index: 2;
 }
 
 .command-panel-title {

@@ -24,7 +24,7 @@ export default function Leaderboard() {
   const rank = allUsers.findIndex(u => u.isYou) + 1;
 
   return (
-    <div className="leaderboard">
+    <div className="leaderboard panel-border">
       <div className="leaderboard-tabs">
         {['global', 'weekly', 'friends'].map(t => (
           <button key={t} className={`lb-tab ${tab === t ? 'active' : ''}`} onClick={() => setTab(t)}>

@@ -268,7 +268,7 @@ export default function RevisionDashboard() {
   const nextDue = allPending.length > 0 ? allPending.sort((a, b) => a.dueAt - b.dueAt)[0] : null;
 
   return (
-    <div className="revision-dashboard">
+    <div className="revision-dashboard panel-border">
       <div className="revision-stats">
         <div className="rev-stat-card">
           <span className="rev-stat-num">{allPending.length}</span>
