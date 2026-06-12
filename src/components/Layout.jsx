@@ -21,7 +21,7 @@ import SystemNotification from './SystemNotification';
 export default function Layout() {
   const {
     showReward, showLevelUp, showAchievement,
-    clearReward, clearLevelUp, clearAchievement, revisions, rank, currentTheme, level,
+    clearReward, clearLevelUp, clearAchievement, revisions, rank, currentTheme, level, levelProgress,
   } = useGame();
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState(() => {
@@ -112,17 +112,18 @@ export default function Layout() {
 
       <header className="app-header">
         <div className="header-left">
-          <span className="app-logo">
-            {currentTheme === 'solo' ? (
-              <span className="rank-level-col">
-                <span className="rank-badge" style={{ color: rank.color }}>{rank.icon} {rank.rank}-Rank</span>
-                <span className="rank-level-text">Level {level}</span>
-              </span>
-            ) : (
-              <span>🎮 StudyQuest</span>
-            )}
-          </span>
-          <XPBar />
+          {currentTheme === 'solo' ? (
+            <div className="solo-header-stack">
+              <span className="rank-badge" style={{ color: rank.color }}>{rank.icon} {rank.rank}-Rank</span>
+              <span className="rank-level-text">Level {level}</span>
+              <span className="rank-xp-text">{levelProgress.current} / {levelProgress.required} XP</span>
+            </div>
+          ) : (
+            <>
+              <span className="app-logo">🎮 StudyQuest</span>
+              <XPBar />
+            </>
+          )}
         </div>
         <div className="header-center">
           <nav className="header-nav">
