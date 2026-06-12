@@ -114,9 +114,9 @@ export default function Layout() {
         <div className="header-left">
           <span className="app-logo">
             {currentTheme === 'solo' ? (
-              <span className="rank-level-stack">
+              <span className="rank-level-col">
                 <span className="rank-badge" style={{ color: rank.color }}>{rank.icon} {rank.rank}-Rank</span>
-                <span className="level-badge">Lv.{level}</span>
+                <span className="rank-level-text">Level {level}</span>
               </span>
             ) : (
               <span>🎮 StudyQuest</span>
