@@ -119,6 +119,21 @@ body {
   letter-spacing: 0.5px;
 }
 
+.rank-level-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1.2;
+}
+
+.level-badge {
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--text2);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
 .header-center {
   display: flex;
   align-items: center;
