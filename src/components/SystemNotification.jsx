@@ -34,36 +34,49 @@ export default function SystemNotification() {
         <button className="sys-dismiss-all" onClick={dismissAll}>✕ Clear All</button>
       )}
 
-      {/* Corner notifications (XP_GAIN) */}
+      {/* Corner notifications (XP_GAIN / SUBJECT_MASTERED) */}
       <div className="sys-corner-container">
-        {queue.filter(n => n.type === 'XP_GAIN' || n.type === 'LECTURE_COMPLETED').map(n => (
-          <div key={n.id} className="sys-corner" style={{ '--c': '#00e5ff' }} onClick={() => dismiss(n.id)}>
-            <div className="sys-corner-glow" />
-            <div className="sys-corner-border" />
-            <div className="sys-corner-inner">
-              <span className="sys-corner-xp">+{n.data?.xp || 50} XP</span>
-              <span className="sys-corner-label">{n.data?.label || 'Lecture Completed'}</span>
+        {queue.filter(n => n.type === 'XP_GAIN' || n.type === 'LECTURE_COMPLETED' || n.type === 'SUBJECT_MASTERED').map(n => {
+          const isSubject = n.type === 'SUBJECT_MASTERED';
+          return (
+            <div key={n.id} className="sys-corner" style={{ '--c': isSubject ? '#ffd740' : '#00e5ff' }} onClick={() => dismiss(n.id)}>
+              <div className="sys-corner-glow" />
+              <div className="sys-corner-border" />
+              <div className="sys-corner-inner">
+                {isSubject ? (
+                  <>
+                    <span className="sys-corner-xp">📖 Subject Mastered</span>
+                    <span className="sys-corner-label">{n.data?.task}</span>
+                    {n.data?.rewards?.slice(0, 2).map((r, i) => (
+                      <span key={i} className="sys-corner-label" style={{ fontWeight: 600, color: '#ffd740' }}>{r}</span>
+                    ))}
+                  </>
+                ) : (
+                  <>
+                    <span className="sys-corner-xp">+{n.data?.xp || 50} XP</span>
+                    <span className="sys-corner-label">{n.data?.label || 'Lecture Completed'}</span>
+                  </>
+                )}
+              </div>
+              <div className="sys-corner-sparks" />
+              <span className="sys-corner-close">✕</span>
             </div>
-            <div className="sys-corner-sparks" />
-            <span className="sys-corner-close">✕</span>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
-      {/* Center panels (QUEST_COMPLETED, SUBJECT_MASTERED, DAILY_MISSION) */}
-      {queue.filter(n => n.type === 'QUEST_COMPLETED' || n.type === 'SUBJECT_MASTERED' || n.type === 'DAILY_MISSION').map(n => {
+      {/* Center panels (QUEST_COMPLETED, DAILY_MISSION) */}
+      {queue.filter(n => n.type === 'QUEST_COMPLETED' || n.type === 'DAILY_MISSION').map(n => {
         const isQuest = n.type === 'QUEST_COMPLETED';
-        const isSubject = n.type === 'SUBJECT_MASTERED';
         const isDaily = n.type === 'DAILY_MISSION';
         return (
           <div key={n.id} className="sys-overlay" onClick={() => dismiss(n.id)}>
-            <div className="sys-center-panel" style={{ '--c': isQuest ? '#00e5ff' : isSubject ? '#ffd740' : '#7c4dff' }} onClick={e => e.stopPropagation()}>
+            <div className="sys-center-panel" style={{ '--c': isQuest ? '#00e5ff' : '#7c4dff' }} onClick={e => e.stopPropagation()}>
               <button className="sys-close-btn" onClick={() => dismiss(n.id)}>✕</button>
               <div className="sys-center-scan" />
               <div className="sys-center-glow-ring" />
               <div className="sys-center-header">
                 {isQuest && <><span className="sys-center-icon">⚡</span><span className="sys-center-title">QUEST COMPLETED</span></>}
-                {isSubject && <><span className="sys-center-icon">📖</span><span className="sys-center-title">SUBJECT MASTERED</span></>}
                 {isDaily && <><span className="sys-center-icon">📋</span><span className="sys-center-title">DAILY MISSION COMPLETE</span></>}
               </div>
               {n.data?.task && <div className="sys-center-task">Task: {n.data.task}</div>}
