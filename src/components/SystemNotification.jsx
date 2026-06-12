@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 
 let notifyId = 0;
@@ -12,22 +12,32 @@ export function emitNotification(type, data) {
 export default function SystemNotification() {
   const [queue, setQueue] = useState([]);
 
+  const dismiss = useCallback((id) => {
+    setQueue(prev => prev.filter(n => n.id !== id));
+  }, []);
+
   useEffect(() => {
     const handler = (n) => {
       setQueue(prev => [...prev, n]);
-      const dur = n.type === 'LEVEL_UP' || n.type === 'RANK_UP' ? 5000 : 4000;
-      setTimeout(() => setQueue(prev => prev.filter(x => x.id !== n.id)), dur);
     };
     listeners.add(handler);
     return () => listeners.delete(handler);
   }, []);
 
+  const dismissAll = useCallback(() => {
+    setQueue([]);
+  }, []);
+
   return createPortal(
     <>
+      {queue.length > 1 && (
+        <button className="sys-dismiss-all" onClick={dismissAll}>✕ Clear All</button>
+      )}
+
       {/* Corner notifications (XP_GAIN) */}
       <div className="sys-corner-container">
         {queue.filter(n => n.type === 'XP_GAIN' || n.type === 'LECTURE_COMPLETED').map(n => (
-          <div key={n.id} className="sys-corner" style={{ '--c': '#00e5ff' }}>
+          <div key={n.id} className="sys-corner" style={{ '--c': '#00e5ff' }} onClick={() => dismiss(n.id)}>
             <div className="sys-corner-glow" />
             <div className="sys-corner-border" />
             <div className="sys-corner-inner">
@@ -35,6 +45,7 @@ export default function SystemNotification() {
               <span className="sys-corner-label">{n.data?.label || 'Lecture Completed'}</span>
             </div>
             <div className="sys-corner-sparks" />
+            <span className="sys-corner-close">✕</span>
           </div>
         ))}
       </div>
@@ -45,8 +56,9 @@ export default function SystemNotification() {
         const isSubject = n.type === 'SUBJECT_MASTERED';
         const isDaily = n.type === 'DAILY_MISSION';
         return (
-          <div key={n.id} className="sys-overlay">
-            <div className="sys-center-panel" style={{ '--c': isQuest ? '#00e5ff' : isSubject ? '#ffd740' : '#7c4dff' }}>
+          <div key={n.id} className="sys-overlay" onClick={() => dismiss(n.id)}>
+            <div className="sys-center-panel" style={{ '--c': isQuest ? '#00e5ff' : isSubject ? '#ffd740' : '#7c4dff' }} onClick={e => e.stopPropagation()}>
+              <button className="sys-close-btn" onClick={() => dismiss(n.id)}>✕</button>
               <div className="sys-center-scan" />
               <div className="sys-center-glow-ring" />
               <div className="sys-center-header">
@@ -74,10 +86,10 @@ export default function SystemNotification() {
       {queue.filter(n => n.type === 'LEVEL_UP' || n.type === 'RANK_UP').map(n => {
         const isRank = n.type === 'RANK_UP';
         return (
-          <div key={n.id} className="sys-fullscreen-overlay">
+          <div key={n.id} className="sys-fullscreen-overlay" onClick={() => dismiss(n.id)}>
             <div className="sys-fullscreen-bg" />
-            <div className="sys-fullscreen-panel" style={{ '--c': isRank ? '#ffd700' : '#00e676' }}>
-              {/* Code rain */}
+            <div className="sys-fullscreen-panel" style={{ '--c': isRank ? '#ffd700' : '#00e676' }} onClick={e => e.stopPropagation()}>
+              <button className="sys-close-btn sys-close-btn-light" onClick={() => dismiss(n.id)}>✕</button>
               <div className="sys-code-rain">
                 {Array.from({ length: 20 }).map((_, i) => (
                   <div key={i} className="sys-code-column" style={{ '--i': i, '--s': `${1 + Math.random() * 2}s`, '--d': `${Math.random() * 3}s` }}>
@@ -85,7 +97,6 @@ export default function SystemNotification() {
                   </div>
                 ))}
               </div>
-              {/* Main panel */}
               <div className="sys-fullscreen-main">
                 <div className="sys-fullscreen-glow" />
                 <div className="sys-fullscreen-border-tl" />
@@ -103,7 +114,6 @@ export default function SystemNotification() {
                   {n.data?.rewards?.map((r, i) => <div key={i} className="sys-fullscreen-stat">{r}</div>)}
                 </div>
               </div>
-              {/* Particle explosion */}
               <div className="sys-fullscreen-particles">
                 {Array.from({ length: 30 }).map((_, i) => (
                   <div key={i} className="sys-fp" style={{ '--i': i, '--x': `${Math.random() * 200 - 100}px`, '--y': `${Math.random() * 200 - 100}px`, '--s': `${0.5 + Math.random() * 1}s` }} />
