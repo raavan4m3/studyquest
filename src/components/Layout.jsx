@@ -115,13 +115,15 @@ export default function Layout() {
           {currentTheme === 'solo' ? (
             <div className="solo-header-stack">
               <span className="rank-badge" style={{ color: rank.color }}>{rank.icon} {rank.rank}-Rank</span>
-              <span className="rank-level-text">Level {level}</span>
-              <span className="rank-xp-text">{levelProgress.current} / {levelProgress.required} XP</span>
-              <div className="xp-bar solo-xp-bar">
-                <div className="xp-bar-fill" style={{ width: `${Math.min(levelProgress.progress * 100, 100)}%` }}>
-                  <div className="xp-bar-shine" />
+              <div className="solo-level-row">
+                <span className="rank-level-text">Level {level}</span>
+                <div className="xp-bar solo-xp-bar">
+                  <div className="xp-bar-fill" style={{ width: `${Math.min(levelProgress.progress * 100, 100)}%` }}>
+                    <div className="xp-bar-shine" />
+                  </div>
                 </div>
               </div>
+              <span className="rank-xp-text">{levelProgress.current} / {levelProgress.required} XP</span>
             </div>
           ) : (
             <>
